@@ -30,4 +30,5 @@ def remove_duplicates_from_file(filename):
         print(f"Error: {e}")
 
 # Usage
-remove_duplicates_from_file('dish.txt')
+if __name__ == "__main__":
+    remove_duplicates_from_file('dish.txt')

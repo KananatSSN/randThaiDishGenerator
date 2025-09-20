@@ -1,95 +1,108 @@
 import random
+from pathlib import Path
 
-def generateFoodName(category = 'toOrder'):
-    """
-    Generate a random thai dish name with random meat type.
+class randThaiFood:
+    def __init__(self):
+
+        self.menus_path = Path(__file__).parent / "Menus"
+
+        self.toOrder_bases = self.read_menu("toOrder_bases")
+        self.toOrder_meats = self.read_menu("toOrder_meats")
+
+        self.noodle_bases = self.read_menu("noodle_bases")
+        self.noodle_meats = self.read_menu("noodle_meats")
+        self.noodle_soups = self.read_menu("noodle_soups")
+
+        self.khaoMun = self.read_menu("khaoMun")
+
+        self.steak = self.read_menu("steak")
+
+    def read_menu(self, food_type: str):
+        menu_path = self.menus_path / f"{food_type}.txt"
+        try:
+            with open(menu_path, 'r', encoding='utf-8') as f:
+                return list(set([line.strip() for line in f if line.strip()]))
+        except FileNotFoundError:
+            print(f"Error: Could not find {menu_path}")
+            return None
+        
+    def insert_meat(self, base: str, meat:str):
+        return base.replace('[meat]', meat)
     
-    Args:
-        meat_file: Path to file containing meat type (one per line)
-        dish_file: Path to file containing dish with placeholders meat type
-    """
+    def insert_soup(self, base: str, meat:str):
+        return base.replace('[soup]', meat)
 
-    toOrder = "toOrder.txt"
-    toOrder_meats = "toOrder_meats.txt"
+    def generateFood(self, category = 'all'):
+        """
+        Generate a random thai food with random meat type.
+        category = ['all', 'toOrder', 'noodle']
+        """
+        
+        food_choices = []
 
-    noodle = "noodle.txt"
-    noodle_meats = "noodle_meats.txt"
-    noodle_soups = "noodle_soups.txt"
-    
-    if category == 'toOrder':
-        # Read meat type from file
-        try:
-            with open(toOrder_meats, 'r', encoding='utf-8') as f:
-                meat = list(set([line.strip() for line in f if line.strip()]))
-        except FileNotFoundError:
-            print(f"Error: Could not find {toOrder_meats}")
-            return None
-        
-        # Read dish name from file
-        try:
-            with open(toOrder, 'r', encoding='utf-8') as f:
-                dish = list(set([line.strip() for line in f if line.strip()]))
-        except FileNotFoundError:
-            print(f"Error: Could not find {toOrder}")
-            return None
-        
-        if not meat or not dish:
-            print("Error: One or both files are empty")
-            return None
-        
-        # Pick random meat and dish
-        random_meat = random.choice(meat)
-        random_dish = random.choice(dish)
-        
-        # Insert meat into dish name
-        dish_name = random_dish.replace('[meat]', random_meat)
-        
-        return dish_name
-    
-    if category == 'noodle':
+        if category == 'toOrder' or category == 'all':
 
-        try:
-            with open(noodle, 'r', encoding='utf-8') as f:
-                noodle = list(set([line.strip() for line in f if line.strip()]))
-        except FileNotFoundError:
-            print(f"Error: Could not find {noodle}")
-            return None
+            # Pick ingradients
+            base = random.choice(self.toOrder_bases)
+            meat = random.choice(self.toOrder_meats)
+            
+            # Insert ingradients
+            food = base
+            food = self.insert_meat(food, meat)
+            
+            if category == 'all':
+                food_choices.append(food)
+            else:
+                return food
         
-        try:
-            with open(noodle_meats, 'r', encoding='utf-8') as f:
-                meat = list(set([line.strip() for line in f if line.strip()]))
-        except FileNotFoundError:
-            print(f"Error: Could not find {noodle_meats}")
-            return None
-        
-        try:
-            with open(noodle_soups, 'r', encoding='utf-8') as f:
-                soup = list(set([line.strip() for line in f if line.strip()]))
-        except FileNotFoundError:
-            print(f"Error: Could not find {noodle_soups}")
-            return None
-        
-        if not noodle or not meat or not soup:
-            print("Error: Some files are empty")
-            return None
-        
-        # Pick random noodle meat and soup
-        random_noodle = random.choice(noodle)
-        random_meat = random.choice(meat)
-        random_soup = random.choice(soup)
-        
-        # Insert meat and soup into dish name
-        dish_name = random_noodle.replace('[meat]', random_meat)
-        dish_name = dish_name.replace('[soup]', random_soup)
-        
-        return dish_name
+        if category == 'noodle' or category == 'all':
+            
+            # Pick ingradients
+            noodle = random.choice(self.noodle_bases)
+            meat = random.choice(self.noodle_meats)
+            soup = random.choice(self.noodle_soups)
+            
+            # Insert ingradients
+            food = noodle
+            food = self.insert_soup(food, soup)
+            food = self.insert_meat(food, meat)
+            
+            if category == 'all':
+                food_choices.append(food)
+            else:
+                return food
+            
+        if category == 'khaoMun' or category == 'all':
 
+            # Pick ingradients
+            food = random.choice(self.khaoMun)
+
+            # Insert ingradients
+            if category == 'all':
+                food_choices.append(food)
+            else:
+                return food
+            
+        if category == 'steak' or category == 'all':
+
+            # Pick ingradients
+            food = random.choice(self.steak)
+
+            # Insert ingradients
+            if category == 'all':
+                food_choices.append(food)
+            else:
+                return food
+
+        food = random.choice(food_choices)
+        return food
 
 def main():
 
+    gen = randThaiFood()
     n = 10
     for i in range(n):
-        dish = generateFoodName(category = 'noodle')
+        dish = gen.generateFood()
         print(f"{i+1}. {dish}")
 
 if __name__ == "__main__":
